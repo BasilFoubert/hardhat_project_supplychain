@@ -1,0 +1,23 @@
+{
+  "name": "hardhat_project_supplychain",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/BasilFoubert/hardhat_project_supplychain.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/BasilFoubert/hardhat_project_supplychain/issues"
+  },
+  "homepage": "https://github.com/BasilFoubert/hardhat_project_supplychain#readme",
+  "description": "",
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^5.0.0",
+    "hardhat": "^2.23.0"
+  }
+}
