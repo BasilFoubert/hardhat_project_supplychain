@@ -5,5 +5,11 @@ npx hardhat compile
 
 # TESTING
 https://hardhat.org/tutorial/testing-contracts
-Launch test
 npx hardhat test
+
+# DEPLOY LOCALLY
+# Terminal 1
+npx hardhat node
+
+# Terminal 2
+npx hardhat run scripts/deploy.js --network localhost
