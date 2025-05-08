@@ -1,15 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.28;
+import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "./IImplementationV1.sol";
 import "./IProduct.sol";
 
-contract StorageContract {
-
-    enum TypeStockage { ChambreFroide, Congelateur, Armoire, Frigidaire }
+contract StorageContract is Initializable {
 
     struct Stockage {
         uint256 id;
-        TypeStockage typeStockage;
         uint256[] products;
         int256 temperature;
         address responsable;
@@ -19,7 +17,7 @@ contract StorageContract {
     IImplementationV1 private proxy;
     IProduct private productI;
 
-    constructor(address _proxy, address _productI) {
+    function initialize(address _proxy, address _productI) public initializer {
         proxy = IImplementationV1(_proxy);
         productI = IProduct(_productI);
     }
@@ -35,8 +33,7 @@ contract StorageContract {
         require(
             proxy.hasRole(proxy.PRODUCTEUR_ROLE(), msg.sender) ||
             proxy.hasRole(proxy.TRANSFORMATEUR_ROLE(), msg.sender) ||
-            proxy.hasRole(proxy.TRANSPORTEUR_ROLE(), msg.sender) ||
-            proxy.hasRole(proxy.DISTRIBUTEUR_ROLE(), msg.sender),
+            proxy.hasRole(proxy.TRANSPORTEUR_ROLE(), msg.sender),
             "Acces refuse"
         );
         _;
@@ -44,12 +41,11 @@ contract StorageContract {
 
     //FONCTIONS
 
-    function creerStockage(TypeStockage _type, int256 _temp) external onlyWithRole {
+    function creerStockage(int256 _temp) external onlyWithRole {
         uint256[] memory tabVides = new uint256[](0);
 
         stockages[nextStorageId] = Stockage({
             id: nextStorageId,
-            typeStockage: _type,
             products: tabVides,
             temperature: _temp,
             responsable: msg.sender,
@@ -76,6 +72,10 @@ contract StorageContract {
                 produitsStockes.pop(); 
                 break;
             }
+        }
+
+        if (produitsStockes.length == 0) {
+            stockages[_stockageId].actif = false;
         }
     }
 }
