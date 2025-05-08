@@ -52,13 +52,11 @@ describe("StorageContract", function () {
     it("ajoute un produit à un stockage", async function () {
         await storage.creerStockage(18);
         await storage.ajouterProduit(0, 0);
-    
-        const stockage = await storage.stockages(0);
-        // Vérifie que le produit a bien été ajouté en lisant directement le slot 0
-        const productIndex = await storage.stockages(0);
-        const products = await storage ;
-        const productId = await storage.stockages(0).then(s => s.products); // <- ne fonctionne pas directement
 
+        const nbProduits = await storage.getNbProduits(0);
+        expect(nbProduits).to.equal(1);
+
+        const stockage = await storage.stockages(0);
         expect(stockage.actif).to.be.true;
     });
     
@@ -66,27 +64,34 @@ describe("StorageContract", function () {
         await storage.creerStockage(2);
         await storage.ajouterProduit(0, 0);
         await storage.retirerProduit(0, 0);
-    
-        const stockage = await storage.stockages(0);
-        expect(stockage.actif).to.be.false;
-    });
-
-    it("reste actif si on retire un seul produit parmi plusieurs", async function () {
-        await product.addProduct(
-            "Salades",
-            50,
-            "pièces",
-            "France",
-            "Label Rouge",
-            Math.floor(Date.now() / 1000) + 200000
-        );
-
-        await storage.creerStockage(4);
-        await storage.ajouterProduit(0, 0);
-        await storage.ajouterProduit(0, 1); // Deuxième produit ajouté
-        await storage.retirerProduit(0, 0); // Retire le premier
 
         const stockage = await storage.stockages(0);
+        const produits = await storage.getNbProduits(0);
+
+        expect(produits).to.equal(0);
         expect(stockage.actif).to.be.true;
     });
+
+    
+
+    it("rend le stockage inactif après suppression explicite", async function () {
+        await storage.creerStockage(2);
+        const stockageAvant = await storage.stockages(0);
+        expect(stockageAvant.actif).to.be.true;
+
+        const produitsAvant = await storage.getNbProduits(0);
+        expect(produitsAvant).to.equal(0);
+
+        await storage.supprStockage(0);
+        const stockageApres = await storage.stockages(0);
+        expect(stockageApres.actif).to.be.false;
+    });
+
+    it("empeche la suppression si le stockage contient encore des produits", async function () {
+        await storage.creerStockage(2);
+        await storage.ajouterProduit(0, 0);
+
+        await expect(storage.supprStockage(0)).to.be.revertedWith("Stockage non vide");
+    });
+
 });

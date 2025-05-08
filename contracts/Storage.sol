@@ -55,6 +55,18 @@ contract StorageContract is Initializable {
         nextStorageId++;
     }
 
+    function supprStockage(uint256 _stockageId) external onlyWithRole {
+        require(stockages[_stockageId].actif, "Stockage deja inactif");
+        require(stockages[_stockageId].responsable == msg.sender, "Non autorise");
+        require(stockages[_stockageId].products.length == 0, "Stockage non vide");
+        stockages[_stockageId].actif = false;
+    }
+
+
+    function getNbProduits(uint256 _stockageId) external view returns (uint256) {
+        return stockages[_stockageId].products.length;
+    }
+
     function ajouterProduit(uint256 _stockageId, uint256 _produitId) external onlyWithRole {
         require(stockages[_stockageId].actif, "Stockage inactif");
         (,,,,,,,,,,, bool exist) = productI.produits(_produitId);
@@ -72,10 +84,6 @@ contract StorageContract is Initializable {
                 produitsStockes.pop(); 
                 break;
             }
-        }
-
-        if (produitsStockes.length == 0) {
-            stockages[_stockageId].actif = false;
         }
     }
 }
