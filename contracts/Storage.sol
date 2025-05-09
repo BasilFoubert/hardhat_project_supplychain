@@ -1,10 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.28;
-import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "./IImplementationV1.sol";
 import "./IProduct.sol";
 
-contract StorageContract is Initializable {
+contract StorageContract {
 
     struct Stockage {
         uint256 id;
@@ -17,7 +16,7 @@ contract StorageContract is Initializable {
     IImplementationV1 private proxy;
     IProduct private productI;
 
-    function initialize(address _proxy, address _productI) public initializer {
+    constructor(address _proxy, address _productI) {
         proxy = IImplementationV1(_proxy);
         productI = IProduct(_productI);
     }

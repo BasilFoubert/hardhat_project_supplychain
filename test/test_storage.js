@@ -28,9 +28,8 @@ describe("StorageContract", function () {
         );
     
         const StorageContract = await ethers.getContractFactory("StorageContract");
-        storage = await upgrades.deployProxy(StorageContract, [implAddress, await product.getAddress()], {
-            initializer: "initialize",
-        });
+        storage = await StorageContract.deploy(implAddress, await product.getAddress());
+        await storage.waitForDeployment();
     
         const productAddress = await product.getAddress();
         const storageAddress = await storage.getAddress();
