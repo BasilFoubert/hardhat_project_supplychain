@@ -152,4 +152,8 @@ contract ProductFactory {
         return enVente;
     }
 
+    function getNextId() external view returns (uint256) {
+        return nextId;
+    }
+
 }
