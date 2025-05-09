@@ -16,4 +16,17 @@ interface IProduct {
         uint256 prix,
         bool exist
     );
+
+    function deleteProd(uint256 _id) external;
+
+    function addProduct(
+        string memory nom,
+        uint256 quantite,
+        string memory unite,
+        string memory origine,
+        string memory certification,
+        uint256 datePer
+    ) external;
+
+    function getNextId() external view returns (uint256);
 }
