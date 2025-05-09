@@ -7,4 +7,5 @@ interface IStorage {
     function getNbProduits(uint256 _stockageId) external view returns (uint256);
     function ajouterProduit(uint256 _stockageId, uint256 _produitId) external;
     function retirerProduit(uint256 _stockageId, uint256 _produitId) external;
+    function getStockageParProduit(uint256 _produitId) external view returns (uint256);
 }

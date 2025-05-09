@@ -23,7 +23,10 @@ contract StorageContract {
 
     //MAPPING
     mapping(uint256 => Stockage) public stockages;
+    // Permet de retrouver rapidement dans quel stockage se trouve un produit
+    mapping(uint256 => uint256) public stockageParProduit;
 
+    
     //ID_COMMUN
     uint256 public nextStorageId;
 
@@ -72,6 +75,7 @@ contract StorageContract {
         require(exist, "Produit innexistant");
 
         stockages[_stockageId].products.push(_produitId);
+        stockageParProduit[_produitId] = _stockageId;
     }
 
     function retirerProduit(uint256 _stockageId, uint256 _produitId) external onlyWithRole {
@@ -84,5 +88,10 @@ contract StorageContract {
                 break;
             }
         }
+        delete stockageParProduit[_produitId];
+    }
+
+    function getStockageParProduit(uint256 _produitId) external view returns (uint256) {
+        return stockageParProduit[_produitId];
     }
 }

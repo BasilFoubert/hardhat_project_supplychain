@@ -71,6 +71,14 @@ describe("StorageContract", function () {
         expect(stockage.actif).to.be.true;
     });
 
+    it("associe correctement un produit à un stockage", async function () {
+        await storage.creerStockage(10);
+        await storage.ajouterProduit(0, 0);
+
+        const stockageId = await storage.getStockageParProduit(0);
+        expect(stockageId).to.equal(0);
+    });
+
     
 
     it("rend le stockage inactif après suppression explicite", async function () {
@@ -93,4 +101,5 @@ describe("StorageContract", function () {
         await expect(storage.supprStockage(0)).to.be.revertedWith("Stockage non vide");
     });
 
+    
 });
