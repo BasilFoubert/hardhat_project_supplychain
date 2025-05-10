@@ -105,4 +105,41 @@ describe("Transformation", function () {
         const count = await transformation.getNombreTransformations();
         expect(count).to.equal(2);
     });
+
+    it("devrait vider le stockage des produits d'entrée et marquer les produits comme supprimés", async function () {
+        // Créer deux produits
+        await product.connect(transformateur).addProduct("Blé", 100, "kg", "France", "Bio", Math.floor(Date.now() / 1000) + 10000);
+        await product.connect(transformateur).addProduct("Eau", 50, "L", "France", "Source", Math.floor(Date.now() / 1000) + 10000);
+
+        // Ajouter au stockage
+        await storage.connect(transformateur).ajouterProduit(0, 0);
+        await storage.connect(transformateur).ajouterProduit(0, 1);
+
+        // Vérification présence dans le stockage
+        expect(await storage.getStockageParProduit(0)).to.equal(0);
+        expect(await storage.getStockageParProduit(1)).to.equal(0);
+        expect(await storage.getNbProduits(0)).to.equal(2);
+
+        // Effectuer la transformation
+        await transformation.connect(transformateur).transformation(
+            [0, 1],
+            "Pâte",
+            150,
+            "kg",
+            "France",
+            "Artisanale",
+            Math.floor(Date.now() / 1000) + 20000
+        );
+
+        // Les produits d'entrée doivent être supprimés (exist == false)
+        const p0 = await product.produits(0);
+        const p1 = await product.produits(1);
+        expect(p0.exist).to.be.false;
+        expect(p1.exist).to.be.false;
+
+        // Le stockage ne doit plus contenir les anciens produits
+        expect(await storage.getNbProduits(0)).to.equal(1); // seul le nouveau produit
+    });
+
+
 });
