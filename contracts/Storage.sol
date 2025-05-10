@@ -16,9 +16,9 @@ contract StorageContract {
     IImplementationV1 private proxy;
     IProduct private productI;
 
-    constructor(address _proxy, address _productI) {
+    constructor(address _proxy, address _productM) {
         proxy = IImplementationV1(_proxy);
-        productI = IProduct(_productI);
+        productI = IProduct(_productM);
     }
 
     //MAPPING
