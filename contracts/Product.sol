@@ -22,6 +22,8 @@ contract ProductFactory {
     //MAPPING 
     mapping(uint256 => Product) public produits;
 
+    //On peut opti la mise en vente avec un array si on veut
+
     //PROXY
     address public proxyContract;
 
