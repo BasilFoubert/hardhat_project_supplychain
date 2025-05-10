@@ -3,11 +3,13 @@ pragma solidity ^0.8.28;
 
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "./IImplementationV1.sol";
+import "./IProduct.sol";
 
 contract Transport is Initializable {
     struct TransportStruct {
         address envoyeur;
         address recepteur;
+        uint256[] produitsT;
         int256 temperatureTransport;
         uint256 dateLivraison;
         uint256 dateReception;
@@ -16,18 +18,21 @@ contract Transport is Initializable {
     TransportStruct[] public transports;
 
     IImplementationV1 private proxy;
+    IProduct private productI;
 
     event TransportEffectue(
         address indexed envoyeur,
         address indexed recepteur,
+        uint256[] produitsT,
         int256 temperature,
         uint256 dateLivraison,
         uint256 dateReception
     );
 
 
-    function initialize(address _proxy) public initializer {
+    constructor(address _proxy, address _productM) {
         proxy = IImplementationV1(_proxy);
+        productI = IProduct(_productM);
     }
 
     modifier onlyWithRole() {
@@ -41,12 +46,22 @@ contract Transport is Initializable {
     function enregistrerTransport(
         address _envoyeur,
         address _recepteur,
+        uint256[] _produitsT,
         int256 _temperatureTransport,
         uint256 _dateLivraison
     ) external onlyWithRole {
+
+        //Verif que les produits appartiennent bien au receveur
+        for (uint i = 0; i < _produitsT.length; i++) {
+            (, address proprio, , , , , , , , , bool exist) = productI.produits(_produitsT[i]);
+            require(exist, "Produit inexistant");
+            require(proprio == _recepteur, "Le produit n'appartient pas au receveur");
+        }
+
         transports.push(TransportStruct({
             envoyeur: _envoyeur,
             recepteur: _recepteur,
+            produitsT: _produitsT,
             temperatureTransport: _temperatureTransport,
             dateLivraison: _dateLivraison,
             dateReception: block.timestamp
@@ -55,6 +70,7 @@ contract Transport is Initializable {
         emit TransportEffectue(
             _envoyeur,
             _recepteur,
+            _produitsT,
             _temperatureTransport,
             _dateLivraison,
             block.timestamp
@@ -64,6 +80,7 @@ contract Transport is Initializable {
     function getTransport(uint256 index) external view returns (
         address envoyeur,
         address recepteur,
+        uint256[] produitsT,
         int256 temperatureTransport,
         uint256 dateLivraison,
         uint256 dateReception
@@ -72,6 +89,7 @@ contract Transport is Initializable {
         return (
             t.envoyeur,
             t.recepteur,
+            t.produitsT,
             t.temperatureTransport,
             t.dateLivraison,
             t.dateReception
@@ -80,5 +98,19 @@ contract Transport is Initializable {
 
     function getNombreTransports() external view returns (uint256) {
         return transports.length;
+    }
+
+    function getNomProduitsTransportes(uint256 transportIndex)
+        external
+        view
+        returns (string[] memory noms) {
+
+        TransportStruct memory t = transports[transportIndex];
+        noms = new string[](t.produitsT.length);
+
+        for (uint i = 0; i < t.produitsT.length; i++) {
+            (, , string memory nom, , , , , , , , ) = productI.produits(t.produitsTransportes[i]);
+            noms[i] = nom;
+        }
     }
 }
