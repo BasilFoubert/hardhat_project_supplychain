@@ -87,33 +87,22 @@ describe("Transformation", function () {
         expect(Number(transfo.produitSortie)).to.equal(2);
     });
 
-    // à tester
-    // it("rejette l'accès si l'utilisateur n'est pas transformateur", async function () {
-    //     const [, other] = await ethers.getSigners();
 
-    //     await expect(
-    //         transformation.connect(other).transformation(
-    //             [0], "Produit", 1, "kg", "Origine", "Certif", Math.floor(Date.now() / 1000) + 10000
-    //         )
-    //     ).to.be.revertedWith("Acces refuse");
-    // });
 
-    // à tester
-    // it("devrait compter correctement le nombre de transformations", async function () {
-    //     await product.connect(transformateur).addProduct("X", 1, "u", "Y", "Z", Math.floor(Date.now() / 1000) + 10000);
-    //     await storage.connect(transformateur).ajouterProduit(0, 0);
-    //     await transformation.connect(transformateur).transformation(
-    //         [0], "Out", 1, "u", "Y", "Z", Math.floor(Date.now() / 1000) + 10000
-    //     );
+    it("devrait compter correctement le nombre de transformations", async function () {
+        await product.connect(transformateur).addProduct("X", 1, "u", "Y", "Z", Math.floor(Date.now() / 1000) + 10000);
+        await storage.connect(transformateur).ajouterProduit(0, 0);
+        await transformation.connect(transformateur).transformation(
+            [0], "Out", 1, "u", "Y", "Z", Math.floor(Date.now() / 1000) + 10000
+        );
 
-    // à tester
-    //     await product.connect(transformateur).addProduct("X2", 1, "u", "Y", "Z", Math.floor(Date.now() / 1000) + 10000);
-    //     await storage.connect(transformateur).ajouterProduit(0, 1);
-    //     await transformation.connect(transformateur).transformation(
-    //         [1], "Out2", 1, "u", "Y", "Z", Math.floor(Date.now() / 1000) + 10000
-    //     );
+        await product.connect(transformateur).addProduct("X2", 1, "u", "Y", "Z", Math.floor(Date.now() / 1000) + 10000);
+        await storage.connect(transformateur).ajouterProduit(0, 1);
+        await transformation.connect(transformateur).transformation(
+            [1], "Out2", 1, "u", "Y", "Z", Math.floor(Date.now() / 1000) + 10000
+        );
 
-    //     const count = await transformation.getNombreTransformations();
-    //     expect(count).to.equal(2);
-    // });
+        const count = await transformation.getNombreTransformations();
+        expect(count).to.equal(2);
+    });
 });
