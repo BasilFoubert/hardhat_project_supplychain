@@ -13,3 +13,65 @@ npx hardhat node
 
 # Terminal 2
 npx hardhat run scripts/deploy.js --network localhost
+# Supply Chain Smart Contracts (Hardhat + UUPS)
+
+Ce projet est un système modulaire de gestion de la chaîne d'approvisionnement basé sur des smart contracts Ethereum. Il repose sur l'architecture upgradeable UUPS (Universal Upgradeable Proxy Standard) via la librairie OpenZeppelin.
+
+## Fonctionnalités principales
+
+- **Gestion des rôles** via `ImplementationV1` :
+  - Producteur, Transformateur, Distributeur, Transporteur.
+  - Attribution et demande de rôles dynamiques.
+  
+- **Module Acteur** :
+  - Enregistrement et validation d’acteurs avec rôle et SIRET.
+  
+- **Module Produit (`ProductFactory`)** :
+  - Création, mise en vente, suppression et achat de produits.
+
+- **Module Stockage (`StorageContract`)** :
+  - Gestion de stocks avec température et attribution de produits.
+
+- **Module Transformation** :
+  - Transformation de plusieurs produits en un autre, en respectant les permissions.
+
+- **Module Transport** :
+  - Enregistrement des livraisons de produits avec validation d'appartenance et température.
+
+## Stack technique
+
+- **Solidity** v0.8.28
+- **Hardhat** avec plugins :
+  - `@openzeppelin/hardhat-upgrades`
+  - `@nomicfoundation/hardhat-toolbox`
+- **Tests** : `chai`, `mocha` via `npx hardhat test`
+
+## Tester les contrats
+
+```bash
+npx hardhat compile         # Compile les contrats
+npx hardhat test            # Exécute les tests
+```
+
+## 🚀 Déploiement local
+
+```bash
+# Terminal 1
+npx hardhat node
+
+# Terminal 2
+npx hardhat run scripts/deploy.js --network localhost
+```
+
+## Mise à jour (upgrade)
+
+```bash
+npx hardhat run scripts/upgrade.js --network localhost
+```
+
+## Structure
+
+- `contracts/` : Tous les contrats (modulaires)
+- `scripts/` : Déploiement et upgrade
+- `test/` : Tests unitaires complets
+
