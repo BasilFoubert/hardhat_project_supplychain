@@ -10,33 +10,39 @@ async function main() {
   console.log("Proxy deployed at:", await proxy.getAddress());
 
   //Déploiement module Actor
-  const ActorM = await ethers.getContractFactory("Actor");
-  const actorInstance = await ActorM.deploy(proxy.getAddress());
-  await actorInstance.waitForDeployment();
-  console.log("Contrat acteur deployed at: ", actorInstance.getAddress());
+  const ActorM = await ethers.getContractFactory("ProductFactory");
+    actor = await upgrades.deployProxy(ActorM, [proxy.getAddress()], {
+    initializer: "initialize",
+    kind: "uups",
+  });
 
   //Déploiement module Product
-  const ProductM = await ethers.getContractFactory("Product");
-  const productInstance = await ProductM.deploy(proxy.getAddress());
-  await productInstance.waitForDeployment();
-  console.log("Contrat product deployed at: ", productInstance.getAddress());
+  const Product = await ethers.getContractFactory("ProductFactory");
+    product = await upgrades.deployProxy(Product, [proxy.getAddress()], {
+    initializer: "initialize",
+    kind: "uups",
+  });
 
   //Déploiement module Storage
-  const StorageM = await ethers.getContractFactory("Storage");
-  const storageInstance = await StorageM.deploy(proxy.getAddress(), productInstance.getAddress());
-  await storageInstance.waitForDeployment();
-  console.log("Contrat storage deployed at: ", storageInstance.getAddress());
+  const StorageM = await ethers.getContractFactory("StorageContract");
+    storage = await upgrades.deployProxy(StorageM, [proxy.getAddress(), product.getAddress()], {
+    initializer: "initialize",
+    kind: "uups",
+  });
 
   //Déploiement module Transformation
-  const TransformationM = await ethers.getContractFactory("Transformation");
-  const transfoInstance = await TransformationM.deploy(proxy.getAddress(), productInstance.getAddress(), storageInstance.getAddress());
-  await transfoInstance.waitForDeployment();
-  console.log("Contrat transformation deployed at: ", transfoInstance.getAddress());
+  const TransfoM = await ethers.getContractFactory("Transformation");
+    transfo = await upgrades.deployProxy(TransfoM, [proxy.getAddress(), product.getAddress(), storage.getAddress()], {
+    initializer: "initialize",
+    kind: "uups",
+  });
 
   //Déploiement module Transport
   const TransportM = await ethers.getContractFactory("Transport");
-  const TransportInstance = await TransportM.deploy();
-
+    transport = await upgrades.deployProxy(TransportM, [proxy.getAddress(), product.getAddress()], {
+    initializer: "initialize",
+    kind: "uups",
+  });
 }
 
 main();

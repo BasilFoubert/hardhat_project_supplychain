@@ -1,12 +1,15 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
+import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+
 import "./IImplementationV1.sol";
 import "./IProduct.sol";
 import "./IStorage.sol";
-import "hardhat/console.sol";
 
-contract Transformation {
+contract Transformation is Initializable, UUPSUpgradeable, OwnableUpgradeable {
     struct TransformationStruct {
         uint256[] produitsEntree;
         uint256 produitSortie;
@@ -24,12 +27,15 @@ contract Transformation {
         uint256 produitSortie
     );
 
-
-    constructor(address _proxy, address _productAddress, address _storageAddress) {
+    function initialize(address _proxy, address _productAddress, address _storageAddress) public initializer {
+        __Ownable_init(msg.sender);
+        __UUPSUpgradeable_init();
         proxy = IImplementationV1(_proxy);
         productContract = IProduct(_productAddress);
         storageContract = IStorage(_storageAddress);
     }
+
+    function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
 
     modifier onlyTransformateur() {
         require(
@@ -87,13 +93,10 @@ contract Transformation {
         for (uint i = 0; i < _produitsEntree.length; i++) {
             // retirer produit du storage
             uint256 stockageId = storageContract.getStockageParProduit(_produitsEntree[i]);
-            console.log("Product ID: %d", _produitsEntree[i]);
-            console.log("Storage ID: %d", stockageId);
             storageContract.retirerProduit(stockageId, _produitsEntree[i]);
 
             // supprimer le produit
             productContract.deleteProd(_produitsEntree[i]);
-            console.log("Deleted product ID: %d", _produitsEntree[i]);
         }
 
         // créer produit
@@ -108,7 +111,6 @@ contract Transformation {
 
         // obtenir l'ID du produit créé
         uint256 produitSortieId = productContract.getNextId() - 1;
-        console.log("Created product ID: %d", produitSortieId);
 
         // ajouter produit au stockage
                 // ajouter produit au stockage (le même que le premier produit d'entrée)

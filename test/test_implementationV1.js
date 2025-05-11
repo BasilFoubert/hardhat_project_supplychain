@@ -8,7 +8,7 @@ describe("ImplementationV1 (UUPS)", function () {
     [owner, user] = await ethers.getSigners();
 
     ImplementationV1 = await ethers.getContractFactory("ImplementationV1");
-    proxy = await upgrades.deployProxy(ImplementationV1, [], {
+      proxy = await upgrades.deployProxy(ImplementationV1.connect(owner), [], {
       initializer: "initialize",
       kind: "uups",
     });

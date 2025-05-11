@@ -1,9 +1,14 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.28;
+
+import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+
 import "./IImplementationV1.sol";
 import "./IProduct.sol";
 
-contract StorageContract {
+contract StorageContract is Initializable, UUPSUpgradeable, OwnableUpgradeable {
 
     struct Stockage {
         uint256 id;
@@ -16,10 +21,14 @@ contract StorageContract {
     IImplementationV1 private proxy;
     IProduct private productI;
 
-    constructor(address _proxy, address _productM) {
+    function initialize(address _proxy, address _productM) public initializer {
+        __Ownable_init(msg.sender);
+        __UUPSUpgradeable_init();
         proxy = IImplementationV1(_proxy);
         productI = IProduct(_productM);
     }
+
+    function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
 
     //MAPPING
     mapping(uint256 => Stockage) public stockages;

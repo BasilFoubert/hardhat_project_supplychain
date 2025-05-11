@@ -2,10 +2,13 @@
 pragma solidity ^0.8.28;
 
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+
 import "./IImplementationV1.sol";
 import "./IProduct.sol";
 
-contract Transport is Initializable {
+contract Transport is Initializable, UUPSUpgradeable, OwnableUpgradeable {
     struct TransportStruct {
         address envoyeur;
         address recepteur;
@@ -29,11 +32,14 @@ contract Transport is Initializable {
         uint256 dateReception
     );
 
-
-    constructor(address _proxy, address _productM) {
+    function initialize(address _proxy, address _productAddress) public initializer {
+        __Ownable_init(msg.sender);
+        __UUPSUpgradeable_init();
         proxy = IImplementationV1(_proxy);
-        productI = IProduct(_productM);
+        productI = IProduct(_productAddress);
     }
+
+    function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
 
     modifier onlyWithRole() {
         require(

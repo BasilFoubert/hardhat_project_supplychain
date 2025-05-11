@@ -1,9 +1,14 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.28;
 
+import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+
 import "./IImplementationV1.sol";
 
-contract ProductFactory {
+contract ProductFactory is Initializable, UUPSUpgradeable, OwnableUpgradeable {
+
     struct Product {
         uint256 id;
         address proprietaire;
@@ -36,9 +41,13 @@ contract ProductFactory {
     event ProduitSupprime(uint256 id);
     event ProduitMisEnVente(uint256 id, string nom, uint256 prix);
 
-    constructor(address _proxy) {
+    function initialize(address _proxy) public initializer {
+        __Ownable_init(msg.sender);
+        __UUPSUpgradeable_init();
         proxyContract = _proxy;
     }
+
+    function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
 
     //MODIFIER
 

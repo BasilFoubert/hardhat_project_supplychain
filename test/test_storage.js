@@ -8,14 +8,17 @@ describe("StorageContract", function () {
         [owner, user] = await ethers.getSigners();
     
         const ImplV1 = await ethers.getContractFactory("ImplementationV1");
-        const proxy = await upgrades.deployProxy(ImplV1, [], { initializer: "initialize" });
+        const proxy = await upgrades.deployProxy(ImplV1.connect(owner), [], { initializer: "initialize" });
         const implAddress = await proxy.getAddress();
     
         const PRODUCTEUR_ROLE = await proxy.PRODUCTEUR_ROLE();
         await proxy.accorderRole(owner.address, PRODUCTEUR_ROLE);
     
-        const FakeProduct = await ethers.getContractFactory("ProductFactory");
-        product = await FakeProduct.deploy(implAddress);
+        const Product = await ethers.getContractFactory("ProductFactory");
+            product = await upgrades.deployProxy(Product.connect(owner), [await proxy.getAddress()], {
+            initializer: "initialize",
+            kind: "uups",
+        });
         await product.waitForDeployment();
     
         await product.addProduct(
@@ -27,8 +30,11 @@ describe("StorageContract", function () {
             Math.floor(Date.now() / 1000) + 100000
         );
     
-        const StorageContract = await ethers.getContractFactory("StorageContract");
-        storage = await StorageContract.deploy(implAddress, await product.getAddress());
+       const StorageM = await ethers.getContractFactory("StorageContract");
+            storage = await upgrades.deployProxy(StorageM.connect(owner), [await proxy.getAddress(), await product.getAddress()], {
+            initializer: "initialize",
+            kind: "uups",
+        });
         await storage.waitForDeployment();
     
         const productAddress = await product.getAddress();
