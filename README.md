@@ -63,6 +63,30 @@ npx hardhat node
 npx hardhat run scripts/deploy.js --network localhost
 ```
 
+## Démo utilisateur (simulation réelle)
+
+Pour tester l'utilisation réelle des contrats par un utilisateur externe après le déploiement :
+
+1. **Lancer un réseau local** (dans un terminal) :
+   ```bash
+   npx hardhat node
+   ```
+
+2. **Déployer les contrats** (dans un second terminal) :
+   ```bash
+   npx hardhat run scripts/deploy.js --network localhost
+   ```
+   > Ce script déploie tous les contrats nécessaires et écrit leurs adresses dans `deployed-addresses.json`.
+
+3. **Lancer un script de démo simulant un utilisateur** :
+   ```bash
+   npx hardhat run scripts/demo.js --network localhost
+   ```
+
+Dans ce scénario :
+- L'administrateur déploie les contrats via `deploy.js`
+- Tout utilisateur peut ensuite lire `deployed-addresses.json` pour interagir avec les contrats (par exemple pour créer des produits, acheter, transformer, etc.)
+
 ## Mise à jour (upgrade)
 
 ```bash
