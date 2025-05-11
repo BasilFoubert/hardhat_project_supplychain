@@ -46,14 +46,14 @@ contract Transport is Initializable {
     function enregistrerTransport(
         address _envoyeur,
         address _recepteur,
-        uint256[] _produitsT,
+        uint256[] memory _produitsT,
         int256 _temperatureTransport,
         uint256 _dateLivraison
     ) external onlyWithRole {
 
         //Verif que les produits appartiennent bien au receveur
         for (uint i = 0; i < _produitsT.length; i++) {
-            (, address proprio, , , , , , , , , bool exist) = productI.produits(_produitsT[i]);
+            (, address proprio, , , , , , , , , , bool exist) = productI.produits(_produitsT[i]);
             require(exist, "Produit inexistant");
             require(proprio == _recepteur, "Le produit n'appartient pas au receveur");
         }
@@ -80,7 +80,7 @@ contract Transport is Initializable {
     function getTransport(uint256 index) external view returns (
         address envoyeur,
         address recepteur,
-        uint256[] produitsT,
+        uint256[] memory produitsT,
         int256 temperatureTransport,
         uint256 dateLivraison,
         uint256 dateReception
@@ -109,7 +109,7 @@ contract Transport is Initializable {
         noms = new string[](t.produitsT.length);
 
         for (uint i = 0; i < t.produitsT.length; i++) {
-            (, , string memory nom, , , , , , , , ) = productI.produits(t.produitsTransportes[i]);
+            (, , string memory nom, , , , , , , , ,) = productI.produits(t.produitsT[i]);
             noms[i] = nom;
         }
     }

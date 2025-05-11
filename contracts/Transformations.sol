@@ -77,6 +77,12 @@ contract Transformation {
             "Droit manquant pour manipulation produit"
         );
 
+        for (uint i = 0; i < _produitsEntree.length; i++) {
+            (, address proprietaire, , , , , , , , , , bool exist) = productContract.produits(_produitsEntree[i]);
+            require(exist, "Produit inexistant");
+            require(proprietaire == msg.sender, "Pas le proprietaire du produit");
+        }
+
 
         for (uint i = 0; i < _produitsEntree.length; i++) {
             // retirer produit du storage

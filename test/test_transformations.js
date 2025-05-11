@@ -90,16 +90,21 @@ describe("Transformation", function () {
 
 
     it("devrait compter correctement le nombre de transformations", async function () {
+
+        let produitId;
+
         await product.connect(transformateur).addProduct("X", 1, "u", "Y", "Z", Math.floor(Date.now() / 1000) + 10000);
-        await storage.connect(transformateur).ajouterProduit(0, 0);
+        produitId = (await product.getNextId()) - 1n;
+        await storage.connect(transformateur).ajouterProduit(0, produitId);
         await transformation.connect(transformateur).transformation(
-            [0], "Out", 1, "u", "Y", "Z", Math.floor(Date.now() / 1000) + 10000
+            [produitId], "Out", 1, "u", "Y", "Z", Math.floor(Date.now() / 1000) + 10000
         );
 
         await product.connect(transformateur).addProduct("X2", 1, "u", "Y", "Z", Math.floor(Date.now() / 1000) + 10000);
-        await storage.connect(transformateur).ajouterProduit(0, 1);
+        produitId = (await product.getNextId()) - 1n;
+        await storage.connect(transformateur).ajouterProduit(0, produitId);
         await transformation.connect(transformateur).transformation(
-            [1], "Out2", 1, "u", "Y", "Z", Math.floor(Date.now() / 1000) + 10000
+            [produitId], "Out2", 1, "u", "Y", "Z", Math.floor(Date.now() / 1000) + 10000
         );
 
         const count = await transformation.getNombreTransformations();

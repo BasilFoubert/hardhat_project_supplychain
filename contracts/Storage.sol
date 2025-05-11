@@ -71,8 +71,9 @@ contract StorageContract {
 
     function ajouterProduit(uint256 _stockageId, uint256 _produitId) external onlyWithRole {
         require(stockages[_stockageId].actif, "Stockage inactif");
-        (,,,,,,,,,,, bool exist) = productI.produits(_produitId);
+        (,address proprio,,,,,,,,,, bool exist) = productI.produits(_produitId);
         require(exist, "Produit innexistant");
+        require(proprio == msg.sender, "Ce produit ne vous appartient pas");
 
         stockages[_stockageId].products.push(_produitId);
         stockageParProduit[_produitId] = _stockageId;

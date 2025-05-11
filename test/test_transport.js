@@ -6,38 +6,47 @@ describe("Transport", function () {
   let proxy, productContract, transportContract;
 
   beforeEach(async function () {
-    [owner, transporteur, recepteur] = await ethers.getSigners();
+  [owner, transporteur, recepteur] = await ethers.getSigners();
 
-    // Déploiement du proxy (ImplementationV1)
-    const Impl = await ethers.getContractFactory("ImplementationV1");
-    proxy = await upgrades.deployProxy(Impl, [], {
-      initializer: "initialize",
-      kind: "uups"
-    });
-
-    // Donne le rôle de transporteur
-    const TRANSPORTEUR_ROLE = await proxy.TRANSPORTEUR_ROLE();
-    await proxy.accorderRole(transporteur.address, TRANSPORTEUR_ROLE);
-
-    // Déploiement de Product (mock minimal)
-    const Product = await ethers.getContractFactory("ProductFactory");
-    productContract = await Product.deploy(await proxy.getAddress());
-    await productContract.waitForDeployment();
-
-    // Création d’un produit + transfert au recepteur simulé
-    await productContract.addProduct("Tomate", 5, "kg", "France", "AB", 9999999999);
-    await productContract.mettreEnVente(0, ethers.parseEther("1"));
-    await productContract.connect(recepteur).acheterProduit(0, {
-      value: ethers.parseEther("1")
-    });
-
-    // Déploiement de Transport.sol
-    const Transport = await ethers.getContractFactory("Transport");
-    transportContract = await Transport.deploy(
-      await proxy.getAddress(),
-      await productContract.getAddress()
-    );
+  // Déploiement du proxy (ImplementationV1)
+  const Impl = await ethers.getContractFactory("ImplementationV1");
+  proxy = await upgrades.deployProxy(Impl, [], {
+    initializer: "initialize",
+    kind: "uups"
   });
+
+  // Récupération des rôles
+  const TRANSPORTEUR_ROLE = await proxy.TRANSPORTEUR_ROLE();
+  const PRODUCTEUR_ROLE = await proxy.PRODUCTEUR_ROLE();
+  const DISTRIBUTEUR_ROLE = await proxy.DISTRIBUTEUR_ROLE();
+
+  // Attribution des rôles
+  await proxy.accorderRole(transporteur.address, TRANSPORTEUR_ROLE);
+  await proxy.accorderRole(owner.address, PRODUCTEUR_ROLE); 
+  await proxy.accorderRole(recepteur.address, DISTRIBUTEUR_ROLE);
+
+  // Déploiement de ProductFactory
+  const Product = await ethers.getContractFactory("ProductFactory");
+  productContract = await Product.deploy(await proxy.getAddress());
+  await productContract.waitForDeployment();
+
+  // Création du produit par le producteur (owner)
+  await productContract.connect(owner).addProduct("Tomate", 5, "kg", "France", "AB", 9999999999);
+  await productContract.connect(owner).mettreEnVente(0, ethers.parseEther("1"));
+
+  // Achat du produit par le recepteur
+  await productContract.connect(recepteur).acheterProduit(0, {
+    value: ethers.parseEther("1")
+  });
+
+  // Déploiement de Transport.sol
+  const Transport = await ethers.getContractFactory("Transport");
+  transportContract = await Transport.deploy(
+    await proxy.getAddress(),
+    await productContract.getAddress()
+  );
+});
+
 
   it("devrait enregistrer un transport valide", async function () {
     await expect(
